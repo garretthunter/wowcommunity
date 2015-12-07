@@ -25,21 +25,6 @@ class Controller
 	private $_myPluginPath = null;
 
 	/**
-	 * @return string
-	 */
-	public function getMyPluginPath() {
-		return $this->_myPluginPath;
-	}
-
-	/**
-	 * @param string $myPluginPath
-	 */
-	public function setMyPluginPath( $myPluginPath ) {
-		$this->_myPluginPath = $myPluginPath;
-	}
-
-
-	/**
 	 * BattleNetAPI_Plugin constructor.
 	 */
 	public function __construct($plugin_path)
@@ -57,6 +42,7 @@ class Controller
 			add_action( 'admin_menu', array( &$this, 'admin_menu' ) );
 
 		}
+		add_action( 'widgets_init', array( &$this, 'widget_init' ) );
 
 	}
 
@@ -214,5 +200,22 @@ class Controller
 		unregister_setting('bna_settings','realm'); delete_option('realm');
 		unregister_setting('bna_settings','_valid_apikey'); delete_option('_valid_apikey');
 	}
+
+	/* Getters and Setters */
+	/**
+	 * @return string
+	 */
+	public function getMyPluginPath() {
+		return $this->_myPluginPath;
+	}
+
+	/**
+	 * @param string $myPluginPath
+	 */
+	public function setMyPluginPath( $myPluginPath ) {
+		$this->_myPluginPath = $myPluginPath;
+	}
+
+
 
 }

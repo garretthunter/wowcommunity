@@ -15,7 +15,7 @@ class RealmStatus extends \WP_Widget {
      */
     public function __construct() {
         parent::__construct(
-            'wowcommunity_widget', // Base ID
+            'wowcommunity_realm_status_widget', // Base ID
             __( 'WOW: Realm Status', 'bna' ), // Name
             array( 'description' => __( 'Display your realm\'s status', 'bna' ), ) // Args
         );
