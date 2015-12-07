@@ -39,7 +39,7 @@ class RealmStatus extends \WP_Widget {
         /**
          * Display the widget
          */
-        require( 'vendor/autoload.php' );
+        require( plugin_dir_path(__FILE__).'../../vendor/autoload.php' );
         $factory = new ClientFactory(get_option('apikey'));
         $client = $factory->warcraft(new \Pwnraid\Bnet\Region("us")); //gehDEBUG - hard coding region for now
 

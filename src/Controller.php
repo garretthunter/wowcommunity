@@ -32,6 +32,9 @@ class Controller
 		$this->setMyPluginPath($plugin_path);
 
 		add_action( 'init', array( &$this, 'init' ) );
+		add_action( 'widgets_init', array( &$this, 'widgets_init' ) );
+
+		wp_enqueue_style( "WowCommunity", plugin_dir_url( __FILE__ ) . '../css/wowcommunity.css', array(), '1.0.0', 'all' );
 
 		register_activation_hook($this->getMyPluginPath(), array($this, 'on_activate'));
 		register_deactivation_hook($this->getMyPluginPath() , array($this, 'on_deactivate') );
@@ -42,9 +45,22 @@ class Controller
 			add_action( 'admin_menu', array( &$this, 'admin_menu' ) );
 
 		}
-		add_action( 'widgets_init', array( &$this, 'widget_init' ) );
 
 	}
+
+	/**
+	 * Register all of the hooks related to the public-facing functionality
+	 * of the plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function define_public_hooks() {
+//		$plugin_public = new WowCommunity_Public( $this->get_plugin_name(), $this->get_version() );
+		$this->loader->add_action( 'wp_enqueue_scripts', $this, 'enqueue_styles' );
+//		$this->loader->add_action( 'wp_enqueue_scripts', this, 'enqueue_scripts' );
+	}
+
 
 	public function register_settings () {
 		register_setting('bna_settings','apikey');
@@ -174,7 +190,7 @@ class Controller
 	/**
 	 * Widget activation method.
 	 */
-	function widget_init () {
+	function widgets_init () {
 		register_widget( 'WowCommunity\Widgets\RealmStatus' );
 	}
 	/**

@@ -1,2 +1,2 @@
-.status-icon { background:url(../../images/status.gif) 0 0 no-repeat; margin:0 auto; height:28px; width:27px; }
+.status-icon { background:url(../images/status.gif) 0 0 no-repeat; margin:0 auto; height:28px; width:27px; }
 .status-icon.up { background-position:-110px 0; }
