@@ -1,0 +1,5 @@
+{
+  "require": {
+    "pwnraid/bnet": "dev-master"
+  }
+}
