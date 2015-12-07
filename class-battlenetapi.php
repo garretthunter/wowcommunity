@@ -1,4 +1,3 @@
-This is a change
 <?php
 /*  
 Copyright 2014  Adam Cooper  (email : adam@networkpie.co.uk)
