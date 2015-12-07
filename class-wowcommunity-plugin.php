@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //require_once('class-battlenetapi-settings.php');
 use Pwnraid\Bnet\ClientFactory;
 
-require_once( 'class-wowcommunity-widget.php' );
+require_once( 'RealmStatus.php' );
 
 /**
  * Provides the WordPress integration
@@ -200,7 +200,7 @@ class WowCommunity_Plugin
      * Widget activation method.
      */
     function widget_init () {
-        register_widget( 'WowCommunity_Widget' );
+        register_widget( 'RealmStatus' );
     }
     /**
      * Plugin activation method.

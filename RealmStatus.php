@@ -5,8 +5,11 @@
  * Date: 11/27/2015
  * Time: 6:32 PM
  */
+namespace WowCommunity\Widgets;
 
-class WowCommunity_Widget extends \WP_Widget {
+use Pwnraid\Bnet\ClientFactory;
+
+class RealmStatus extends \WP_Widget {
     /**
      * Sets up the widgets name etc
      */
@@ -33,7 +36,36 @@ class WowCommunity_Widget extends \WP_Widget {
         if (!empty($title))
             echo $args['before_title'] . $title . $args['after_title'];
 
-        echo __('Hello World', 'bna');
+        /**
+         * Display the widget
+         */
+        require ('vendor/autoload.php');
+        $factory = new ClientFactory(get_option('apikey'));
+        $client = $factory->warcraft(new \Pwnraid\Bnet\Region("us")); //gehDEBUG - hard coding region for now
+
+        try {
+            /**
+             * Only way to test the API key is to make call to Battle.net site with the key. It knows
+             */
+	        global $plugin;
+            $myRealm = $client->realms()->find('Arathor');
+	        if ($myRealm['status'] == 1) {
+		        $status = 'up';
+	        } else {
+		        $status = 'down';
+	        }
+	        echo '<div class="status-icon '. $status . '"tooltip="' . ucfirst($status) . '"></div>';
+
+        } catch (\Pwnraid\Bnet\Exceptions\BattleNetException $exception) {
+            $this->my_admin_error_notice('Invalid API Key. Please enter a valid API Key to continue');
+            $option_valid_apikey = false;
+
+	        echo "error";
+        }
+
+        /**
+         * Display whatever comes next
+         */
         echo $args['after_widget'];
     }
 
