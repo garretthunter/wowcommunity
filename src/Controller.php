@@ -20,7 +20,24 @@ use WowCommunity\Widgets\RealmStatus;
 class Controller
 {
 	/**
-	 * @var string $myPluginPath Fully qualified file path to this plugin
+	 * @var Loader
+	 */
+	protected $loader;
+
+	/**
+	 * @var string
+	 */
+
+	protected $name;
+
+	/**
+	 * @var string
+	 */
+
+	protected $version;
+
+	/**
+	 * @var string
 	 */
 	private $_myPluginPath = null;
 
