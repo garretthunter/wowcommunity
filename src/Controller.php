@@ -43,10 +43,11 @@ class Controller
 
 	/**
 	 * BattleNetAPI_Plugin constructor.
+	 * @arg string $plugin_path
 	 */
 	public function __construct($plugin_path)
 	{
-		$this->setMyPluginPath($plugin_path);
+		$this->_myPluginPath = $plugin_path;
 
 		add_action( 'init', array( &$this, 'init' ) );
 		add_action( 'widgets_init', array( &$this, 'widgets_init' ) );
