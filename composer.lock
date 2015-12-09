@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4ae8419ce5090e306c6268881eba0c66",
-    "content-hash": "9e39b7db28483381e1f4c454aa0109a2",
+    "hash": "683f8fcd8769fd22b2817dc6e742453c",
+    "content-hash": "74ae063cf5669aa296ec386d340e36b7",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -387,16 +387,16 @@
         },
         {
             "name": "pwnraid/bnet",
-            "version": "dev-feature/class-race-helpers",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pwnraid/bnet.git",
-                "reference": "4e5ca0da666f6ee802ef98e05e1ddb4705f5ead3"
+                "reference": "56adc9ceb7820abe9d78d5eb3726290e8b262ca2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pwnraid/bnet/zipball/4e5ca0da666f6ee802ef98e05e1ddb4705f5ead3",
-                "reference": "4e5ca0da666f6ee802ef98e05e1ddb4705f5ead3",
+                "url": "https://api.github.com/repos/pwnraid/bnet/zipball/56adc9ceb7820abe9d78d5eb3726290e8b262ca2",
+                "reference": "56adc9ceb7820abe9d78d5eb3726290e8b262ca2",
                 "shasum": ""
             },
             "require": {
@@ -445,7 +445,7 @@
                 "starcraft",
                 "warcraft"
             ],
-            "time": "2015-12-09 03:23:20"
+            "time": "2015-11-28 17:50:20"
         },
         {
             "name": "sebastian/version",

@@ -1,5 +1,5 @@
 {
     "require": {
-        "pwnraid/bnet": "dev-feature/class-race-helpers"
+        "pwnraid/bnet": "dev-master"
     }
 }
