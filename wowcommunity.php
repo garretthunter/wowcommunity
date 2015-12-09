@@ -38,7 +38,10 @@ function wowcommunity_autoload($class) {
     }
 }
 
-new Controller(plugin_dir_path(__FILE__));
+$controller = new Controller(plugin_dir_path(__FILE__));
+
+//register_activation_hook(__FILE__, array(&$controller, 'on_activate'));
+
 
 
 //$wc_plugin = new WowCommunity\Controller(plugin_dir_path(__FILE__));

@@ -54,7 +54,8 @@ class Controller
 
 		wp_enqueue_style( "WowCommunity", plugin_dir_url( __FILE__ ) . '../css/wowcommunity.css', array(), '1.0.0', 'all' );
 
-		register_activation_hook($this->getMyPluginPath(), array($this, 'on_activate'));
+//		register_activation_hook($this->getMyPluginPath(), array($this, 'on_activate'));
+		register_activation_hook($this->getMyPluginPath()."/src", array(&$this, 'on_activate'));
 		register_deactivation_hook($this->getMyPluginPath() , array($this, 'on_deactivate') );
 		register_uninstall_hook($this->getMyPluginPath() , array($this, 'on_deactivate') );
 	}
@@ -77,8 +78,8 @@ class Controller
 	 *
 	 * Ensure that the activation of the plugin creates sane default values for the global settings.
 	 */
-	public static function on_activate() {
-		add_option( 'wc_settings', Battle_Net_API_Plugin::admin_settings_default_values() );
+	 static function on_activate() {
+//		add_option( 'wc_settings', Battle_Net_API_Plugin::admin_settings_default_values() );
 		register_setting('wc_settings','region'); add_option('region','us');
 	}
 
@@ -91,7 +92,7 @@ class Controller
 	 */
 	public function define_public_hooks() {
 //		$plugin_public = new WowCommunity_Public( $this->get_plugin_name(), $this->get_version() );
-		$this->loader->add_action( 'wp_enqueue_scripts', $this, 'enqueue_styles' );
+		add_action( 'wp_enqueue_scripts', $this, 'enqueue_styles' );
 //		$this->loader->add_action( 'wp_enqueue_scripts', this, 'enqueue_scripts' );
 	}
 
@@ -235,7 +236,7 @@ class Controller
 	 *
 	 * Make sure to remove the plugins global settings when deactivating it.
 	 */
-	public static function on_deactivate() {
+	static function on_deactivate() {
 		unregister_setting('wc_settings','apikey'); delete_option('apikey');
 		unregister_setting('wc_settings','region'); delete_option('region');
 		unregister_setting('wc_settings','guild'); delete_option('guild');
