@@ -15,6 +15,8 @@
  *
  */
 
+use WowCommunity\Controller;
+
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
@@ -36,7 +38,7 @@ function wowcommunity_autoload($class) {
     }
 }
 
-new \WowCommunity\Controller(plugin_dir_path(__FILE__));
+new Controller(plugin_dir_path(__FILE__));
 
 
 //$wc_plugin = new WowCommunity\Controller(plugin_dir_path(__FILE__));
