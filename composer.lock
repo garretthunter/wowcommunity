@@ -391,12 +391,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/pwnraid/bnet.git",
-                "reference": "56adc9ceb7820abe9d78d5eb3726290e8b262ca2"
+                "reference": "6a27d96c3b73861967bac91bc35f498d3c08e57e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pwnraid/bnet/zipball/56adc9ceb7820abe9d78d5eb3726290e8b262ca2",
-                "reference": "56adc9ceb7820abe9d78d5eb3726290e8b262ca2",
+                "url": "https://api.github.com/repos/pwnraid/bnet/zipball/6a27d96c3b73861967bac91bc35f498d3c08e57e",
+                "reference": "6a27d96c3b73861967bac91bc35f498d3c08e57e",
                 "shasum": ""
             },
             "require": {
@@ -445,7 +445,7 @@
                 "starcraft",
                 "warcraft"
             ],
-            "time": "2015-11-28 17:50:20"
+            "time": "2015-12-09 12:31:59"
         },
         {
             "name": "sebastian/version",

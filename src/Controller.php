@@ -10,6 +10,9 @@ namespace WowCommunity;
 
 use Pwnraid\Bnet\ClientFactory;
 use Pwnraid\Bnet\Warcraft\Characters\ClassEntity;
+use WowCommunity\Plugin\Loader;
+use WowCommunity\Plugin\i18n;
+use WowCommunity\Plugin\Admin;
 
 /**
  * Provides the WordPress integration
@@ -28,7 +31,7 @@ class Controller
 	 * @var string
 	 */
 
-	protected $name;
+	protected $plugin_name;
 
 	/**
 	 * @var string
@@ -37,32 +40,56 @@ class Controller
 	protected $version;
 
 	/**
-	 * @var string
-	 */
-	private $_myPluginPath = null;
-
-	/**
 	 * WowCommunity constructor.
 	 * @arg string $plugin_path
 	 */
 	public function __construct($plugin_path)
 	{
-		$this->_myPluginPath = $plugin_path;
+		$this->plugin_name = 'WowCommunity';
+		$this->version = '1.0.0';
 
-		add_action( 'init', array( &$this, 'init' ) );
-		add_action( 'widgets_init', array( &$this, 'widgets_init' ) );
+		$this->loadDependencies();
+		$this->setLocale();
+		$this->defineAdminHooks();
+		$this->definePublicHooks();
 
-		wp_enqueue_style( "WowCommunity", plugin_dir_url( __FILE__ ) . '../css/wowcommunity.css', array(), '1.0.0', 'all' );
+//		add_action( 'init', array( &$this, 'init' ) );
+//		add_action( 'widgets_init', array( &$this, 'widgets_init' ) );
 
-//		register_activation_hook($this->getMyPluginPath(), array($this, 'on_activate'));
-		register_activation_hook($this->getMyPluginPath()."/src", array(&$this, 'on_activate'));
-		register_deactivation_hook($this->getMyPluginPath() , array($this, 'on_deactivate') );
-		register_uninstall_hook($this->getMyPluginPath() , array($this, 'on_deactivate') );
+//		wp_enqueue_style( "WowCommunity", plugin_dir_url( __FILE__ ) . '../css/wowcommunity.css', array(), '1.0.0', 'all' );
+
+//		register_activation_hook($this->getMyPluginPath()."/src", array(&$this, 'on_activate'));
+//		register_deactivation_hook($this->getMyPluginPath() , array($this, 'on_deactivate') );
+//		register_uninstall_hook($this->getMyPluginPath() , array($this, 'on_deactivate') );
+	}
+
+	private function loadDependencies ()
+	{
+		$this->loader = new Loader();
+	}
+
+	private function setLocale()
+	{
+		$plugin_i18n = new i18n();
+		$plugin_i18n->setDomain( $this->getPluginAme() );
+		$this->loader->addAction( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
+	}
+
+	private function defineAdminHooks() {
+		$plugin_admin = new Admin( $this->getPluginName(), $this->getVersion() );
+		$this->loader->addAction( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
+		$this->loader->addAction( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+	}
+
+	private function definePublicHooks() {
+		$plugin_public = new xxPublic( $this->getPluginName(), $this->getVersion() );
+		$this->loader->addAction( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
+		$this->loader->addAction( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 	}
 
 	public function init() {
 		if (is_admin()) {
-			add_action( 'admin_menu', array( &$this, 'admin_menu' ) );
+			add_action( 'admin_menu', array( &$this, 'adminMenu') );
 		}
 		//$this->register_settings();
 	}
@@ -70,17 +97,8 @@ class Controller
 	/**
 	 * Widget activation method.
 	 */
-	function widgets_init () {
+	function widgetsInit () {
 		register_widget( 'WowCommunity\Widgets\RealmStatus' );
-	}
-	/**
-	 * Plugin activation method.
-	 *
-	 * Ensure that the activation of the plugin creates sane default values for the global settings.
-	 */
-	 static function on_activate() {
-//		add_option( 'wc_settings', Battle_Net_API_Plugin::admin_settings_default_values() );
-		register_setting('wc_settings','region'); add_option('region','us');
 	}
 
 	/**
@@ -90,26 +108,26 @@ class Controller
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	public function define_public_hooks() {
+	public function definePublicHooks() {
 //		$plugin_public = new WowCommunity_Public( $this->get_plugin_name(), $this->get_version() );
 		add_action( 'wp_enqueue_scripts', $this, 'enqueue_styles' );
 //		$this->loader->add_action( 'wp_enqueue_scripts', this, 'enqueue_scripts' );
 	}
 
 
-	public function admin_menu() {
+	public function adminMenu() {
 
-		add_action ('admin_init', array (&$this, 'register_settings'));
+		add_action ('admin_init', array (&$this, 'registerSettings'));
 
 		add_menu_page(
 			__( 'WoW Community', 'wc' ),
 			'Wow Community',
 			'administrator',
 			'wc_admin',
-			array( $this, 'admin_options_page' ));
+			array( $this, 'adminOptionsPage'));
 	}
 
-	public function register_settings () {
+	public function registerSettings () {
 		register_setting('wc_settings','apikey');
 		register_setting('wc_settings','region');
 		register_setting('wc_settings','guild');
@@ -118,7 +136,7 @@ class Controller
 
 	}
 
-	public function my_admin_error_notice($message = null) {
+	public function myAdminErrorNotice($message = null) {
 		$class = "error";
 		if (!isset($message)) {
 			$message = "Error in saving";
@@ -126,7 +144,7 @@ class Controller
 		echo"<div class=\"$class\"> <p>$message</p></div>";
 	}
 
-	public function admin_options_page() { ?>
+	public function adminOptionsPage() { ?>
 		<div class="wrap">
 			<h2><?php _e( 'World of Warcraft Community Setup', 'wc' ) ?></h2>
 			<?php
@@ -158,7 +176,7 @@ class Controller
 
 					$option_valid_apikey = true;
 				} catch (\Pwnraid\Bnet\Exceptions\BattleNetException $exception) {
-					$this->my_admin_error_notice('Invalid API Key. Please enter a valid API Key to continue');
+					$this->myAdminErrorNotice('Invalid API Key. Please enter a valid API Key to continue');
 					$option_valid_apikey = false;
 				}
 			}
@@ -232,16 +250,51 @@ class Controller
 	}
 
 	/**
-	 * Plugin deactivation method.
-	 *
-	 * Make sure to remove the plugins global settings when deactivating it.
+	 * @return Loader
 	 */
-	static function on_deactivate() {
-		unregister_setting('wc_settings','apikey'); delete_option('apikey');
-		unregister_setting('wc_settings','region'); delete_option('region');
-		unregister_setting('wc_settings','guild'); delete_option('guild');
-		unregister_setting('wc_settings','realm'); delete_option('realm');
-		unregister_setting('wc_settings','_valid_apikey'); delete_option('_valid_apikey');
+	public function getLoader()
+	{
+		return $this->loader;
+	}
+
+	/**
+	 * @param Loader $loader
+	 */
+	public function setLoader($loader)
+	{
+		$this->loader = $loader;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPluginName()
+	{
+		return $this->plugin_name;
+	}
+
+	/**
+	 * @param string $plugin_ame
+	 */
+	public function setPluginName($plugin_ame)
+	{
+		$this->plugin_name = $plugin_ame;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getVersion()
+	{
+		return $this->version;
+	}
+
+	/**
+	 * @param string $version
+	 */
+	public function setVersion($version)
+	{
+		$this->version = $version;
 	}
 
 	/* Getters and Setters */

@@ -15,11 +15,13 @@
  *
  */
 
-use WowCommunity\Controller;
-
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
+
+/**
+ * Testing out namespaces and autoloading magix
+ */
 
 spl_autoload_register( 'wowcommunity_autoload' );
 function wowcommunity_autoload($class) {
@@ -38,13 +40,19 @@ function wowcommunity_autoload($class) {
     }
 }
 
-$controller = new Controller(plugin_dir_path(__FILE__));
+function activate_wowcommunity() {
+    WowCommunity\Plugin\Activator::activate();
+}
 
-//register_activation_hook(__FILE__, array(&$controller, 'on_activate'));
+function deactivate_wowcommunity() {
+    WowCommunity\Plugin\Deactivator::deactivate();
+}
 
+register_activation_hook( __FILE__, 'activate_wowcommunity' );
+register_deactivation_hook( __FILE__, 'deactivate_wowcommunity' );
 
+$controller = new WowCommunity\Controller();
 
-//$wc_plugin = new WowCommunity\Controller(plugin_dir_path(__FILE__));
 
 //add_action( 'init', array( &$wc_plugin, 'init' ) );
 //add_action( 'admin_menu', array( &$wc_plugin, 'admin_menu' ) );
