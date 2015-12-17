@@ -9,7 +9,7 @@
 namespace WowCommunity\Plugin;
 
 
-class Admin
+class PluginAdmin
 {
     private $plugin_name;
     private $version;

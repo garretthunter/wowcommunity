@@ -12,7 +12,8 @@ use Pwnraid\Bnet\ClientFactory;
 use Pwnraid\Bnet\Warcraft\Characters\ClassEntity;
 use WowCommunity\Plugin\Loader;
 use WowCommunity\Plugin\i18n;
-use WowCommunity\Plugin\Admin;
+use WowCommunity\Plugin\PluginAdmin;
+use WowCommunity\Plugin\PluginPublic;
 
 /**
  * Provides the WordPress integration
@@ -43,7 +44,7 @@ class Controller
 	 * WowCommunity constructor.
 	 * @arg string $plugin_path
 	 */
-	public function __construct($plugin_path)
+	public function __construct()
 	{
 		$this->plugin_name = 'WowCommunity';
 		$this->version = '1.0.0';
@@ -71,18 +72,18 @@ class Controller
 	private function setLocale()
 	{
 		$plugin_i18n = new i18n();
-		$plugin_i18n->setDomain( $this->getPluginAme() );
+		$plugin_i18n->setDomain( $this->getPluginName() );
 		$this->loader->addAction( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
 	}
 
 	private function defineAdminHooks() {
-		$plugin_admin = new Admin( $this->getPluginName(), $this->getVersion() );
+		$plugin_admin = new PluginAdmin( $this->getPluginName(), $this->getVersion() );
 		$this->loader->addAction( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->addAction( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 	}
 
 	private function definePublicHooks() {
-		$plugin_public = new xxPublic( $this->getPluginName(), $this->getVersion() );
+		$plugin_public = new PluginPublic( $this->getPluginName(), $this->getVersion() );
 		$this->loader->addAction( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->addAction( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 	}
@@ -108,12 +109,12 @@ class Controller
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	public function definePublicHooks() {
+/*	public function definePublicHooks() {
 //		$plugin_public = new WowCommunity_Public( $this->get_plugin_name(), $this->get_version() );
 		add_action( 'wp_enqueue_scripts', $this, 'enqueue_styles' );
 //		$this->loader->add_action( 'wp_enqueue_scripts', this, 'enqueue_scripts' );
 	}
-
+*/
 
 	public function adminMenu() {
 
@@ -159,7 +160,7 @@ class Controller
 			 * We have a key, now test if it's valid
 			 */
 			if (true == $option_apikey) {
-				require ($this->getMyPluginPath().'vendor/autoload.php');
+				require (plugin_dir_path(__FILE__).'vendor/autoload.php');
 				$factory = new ClientFactory($option_apikey);
 				$client = $factory->warcraft(new \Pwnraid\Bnet\Region($option_region));
 				try {
@@ -296,22 +297,5 @@ class Controller
 	{
 		$this->version = $version;
 	}
-
-	/* Getters and Setters */
-	/**
-	 * @return string
-	 */
-	public function getMyPluginPath() {
-		return $this->_myPluginPath;
-	}
-
-	/**
-	 * @param string $myPluginPath
-	 */
-	public function setMyPluginPath( $myPluginPath ) {
-		$this->_myPluginPath = $myPluginPath;
-	}
-
-
 
 }
