@@ -8,6 +8,9 @@
 
 namespace WowCommunity\Plugin;
 
+use Pwnraid\Bnet\ClientFactory;
+use WowCommunity\Plugin\OptionsEntity;
+use Pwnraid\Bnet\Warcraft\Characters\ClassEntity;
 
 class PluginAdmin
 {
@@ -18,6 +21,7 @@ class PluginAdmin
     {
         $this->plugin_name = $plugin_name;
         $this->version = $version;
+
     }
 
     public function enqueue_styles()
@@ -53,7 +57,7 @@ class PluginAdmin
     }
 
     public function registerSettings () {
-     die("REGISTER");
+
         register_setting('wc_settings','apikey');
         register_setting('wc_settings','region');
         register_setting('wc_settings','guild');
@@ -70,6 +74,13 @@ class PluginAdmin
             'administrator',
             'wc_admin',
             array( $this, 'adminOptionsPage'));
+    }
+
+    /**
+     * Widget activation method.
+     */
+    function widgetsInit () {
+        register_widget( 'WowCommunity\Widgets\RealmStatus' );
     }
 
     public function myAdminErrorNotice($message = null) {
@@ -92,10 +103,10 @@ class PluginAdmin
             $option_region = get_option('region');
 
             /*
-             * We have a key, now test if it's valid
+             * Do we have a valid API key?
              */
             if (true == $option_apikey) {
-                require (plugin_dir_path(__FILE__).'vendor/autoload.php');
+                require (plugin_dir_path(__FILE__).'../../vendor/autoload.php');
                 $factory = new ClientFactory($option_apikey);
                 $client = $factory->warcraft(new \Pwnraid\Bnet\Region($option_region));
                 try {
@@ -132,6 +143,12 @@ class PluginAdmin
                         <tr valign="top">
                             <th scope="row">Battle.net API Key</th>
                             <td><input type="text" name="apikey" value="<?php echo esc_attr($option_apikey); ?>" maxlength="32" size="40"/> <input type="submit" name="submit" value="Validate" class="button button-primary" />
+                            </td>
+                        </tr>
+                        <tr valign="top">
+                            <th scope="row">Guild Region</th>
+                            <td><input type="text" name="" value="<?php echo esc_attr( strtoupper($option_region) ); ?>" readonly /> (other regions will be added in the future)
+                                <input type="hidden" name="region" value="<?php echo esc_attr( $option_region ); ?>" />
                             </td>
                         </tr>
                     </table>

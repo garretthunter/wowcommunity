@@ -51,7 +51,11 @@ function deactivate_wowcommunity() {
 register_activation_hook( __FILE__, 'activate_wowcommunity' );
 register_deactivation_hook( __FILE__, 'deactivate_wowcommunity' );
 
-$controller = new WowCommunity\Controller();
+function runWowCommunity() {
+    $plugin = new WowCommunity\Controller();
+    $plugin->run();
+}
+runWowCommunity();
 
 
 //add_action( 'init', array( &$wc_plugin, 'init' ) );

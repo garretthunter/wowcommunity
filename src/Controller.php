@@ -8,8 +8,6 @@
  */
 namespace WowCommunity;
 
-use Pwnraid\Bnet\ClientFactory;
-use Pwnraid\Bnet\Warcraft\Characters\ClassEntity;
 use WowCommunity\Plugin\Loader;
 use WowCommunity\Plugin\i18n;
 use WowCommunity\Plugin\PluginAdmin;
@@ -72,7 +70,7 @@ class Controller
 	{
 		$plugin_i18n = new i18n();
 		$plugin_i18n->setDomain( $this->getPluginName() );
-		$this->loader->addAction( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
+		$this->loader->addAction( 'plugins_loaded', $plugin_i18n, 'loadPluginTextdomain' );
 	}
 
 	private function defineAdminHooks() {
@@ -81,7 +79,7 @@ class Controller
 
 		$this->loader->addAction( 'admin_init', $plugin_admin, 'registerSettings' );
 		$this->loader->addAction( 'admin_menu', $plugin_admin, 'adminMenu' );
-		$this->loader->addAction( 'widgets_init', $plugin_admin, 'widgets_init' );
+		$this->loader->addAction( 'widgets_init', $plugin_admin, 'widgetsInit' );
 
 //		add_action( 'widgets_init', array( &$this, 'widgets_init' ) );
 
@@ -95,18 +93,17 @@ class Controller
 		$this->loader->addAction( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 	}
 
+
+	public function run()
+	{
+		$this->loader->run();
+	}
+
 	public function init() {
 		if (is_admin()) {
 			add_action( 'admin_menu', array( &$this, 'adminMenu') );
 		}
 		//$this->register_settings();
-	}
-
-	/**
-	 * Widget activation method.
-	 */
-	function widgetsInit () {
-		register_widget( 'WowCommunity\Widgets\RealmStatus' );
 	}
 
 	/**

@@ -391,12 +391,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/pwnraid/bnet.git",
-                "reference": "6a27d96c3b73861967bac91bc35f498d3c08e57e"
+                "reference": "874ce7e0b04a6a2123f9f60e49a08e32e5605999"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pwnraid/bnet/zipball/6a27d96c3b73861967bac91bc35f498d3c08e57e",
-                "reference": "6a27d96c3b73861967bac91bc35f498d3c08e57e",
+                "url": "https://api.github.com/repos/pwnraid/bnet/zipball/874ce7e0b04a6a2123f9f60e49a08e32e5605999",
+                "reference": "874ce7e0b04a6a2123f9f60e49a08e32e5605999",
                 "shasum": ""
             },
             "require": {
@@ -407,9 +407,12 @@
                 "tedivm/stash": "0.13.*"
             },
             "require-dev": {
-                "humbug/humbug": "~1.0",
-                "mockery/mockery": "0.9.*",
-                "phpunit/phpunit": "~4.0"
+                "apigen/apigen": "^4.1.1",
+                "jakub-onderka/php-parallel-lint": "^0.9",
+                "mockery/mockery": "^0.9.4",
+                "phpunit/phpunit": "^4.8",
+                "satooshi/php-coveralls": "^0.7",
+                "squizlabs/php_codesniffer": "^2.5"
             },
             "type": "library",
             "extra": {
@@ -428,12 +431,13 @@
             ],
             "authors": [
                 {
-                    "name": "Jonas Stendahl",
-                    "email": "jyggen@pwnraid.org"
-                },
-                {
                     "name": "pwnRaid Community",
                     "homepage": "https://github.com/pwnraid/bnet/graphs/contributors"
+                },
+                {
+                    "name": "Jonas Stendahl",
+                    "email": "jyggen@pwnraid.org",
+                    "homepage": "https://pwnraid.org"
                 }
             ],
             "description": "Library for Battle.net Web APIs",
@@ -445,7 +449,7 @@
                 "starcraft",
                 "warcraft"
             ],
-            "time": "2015-12-09 12:31:59"
+            "time": "2015-12-15 13:12:59"
         },
         {
             "name": "sebastian/version",

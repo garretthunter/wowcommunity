@@ -13,10 +13,12 @@ use WowCommunity\Core\AbstractEntity;
 class OptionsEntity extends AbstractEntity
 {
 
-    protected $apikey;
-    protected $region = 'us';
-    protected $realm;
-    protected $guild;
+    protected $options = [
+        "apiKey"    =>  "",
+        "region"    =>  "",
+        "realm"     =>  "",
+        "guild"     =>  "",
+    ];
 
     function __construct(array $body)
     {
