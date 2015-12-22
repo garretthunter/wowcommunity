@@ -13,6 +13,7 @@ class Deactivator
 {
     public static function deactivate()
     {
-        unregister_setting('wowcommunity_plugin','wowcommunity_options'); delete_option('wowcommunity_options');
+        unregister_setting('wowcommunity_plugin','wowcommunity_apikey_options'); delete_option('wowcommunity_apikey_options');
+        unregister_setting('wowcommunity_plugin','wowcommunity_guild_options'); delete_option('wowcommunity_guild_options');
     }
 }

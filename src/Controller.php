@@ -89,7 +89,8 @@ class Controller
 		 * Options Settings
 		 */
 		$this->loader->addAction( 'admin_menu', $plugin_settings, 'setupPluginOptionsMenu' );
-		$this->loader->addAction( 'admin_init', $plugin_settings, 'initializeOptions' );
+		$this->loader->addAction( 'admin_init', $plugin_settings, 'initializeApiKeyOptions' );
+		$this->loader->addAction( 'admin_init', $plugin_settings, 'initializeGuildOptions' );
 
 		/**
 		 * Widgets

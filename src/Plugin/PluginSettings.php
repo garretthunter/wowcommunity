@@ -46,34 +46,6 @@ class PluginSettings
     }
 
     /**
-     * Provides default values for the Display Options.
-     *
-     * @return array
-     */
-    public function defaultOptions()
-    {
-
-        $defaults = array(
-            "apiKey" => "",
-            "region" => "us",
-            "realm" => "",
-            "guild" => "",
-        );
-
-        return $defaults;
-    }
-
-    public function initializeOptions () {
-
-        if( false == get_option( 'wowcommunity_options' ) ) {
-            $default_array = $this->defaultOptions();
-            add_option( 'wowcommunity_options', $default_array );
-        }
-
-        register_setting('wowcommunity_options','wowcommunity_options');
-    }
-
-    /**
      * This function introduces the theme options into the 'Appearance' menu and into a top-level
      * 'WPPB Demo' menu.
      */
@@ -92,18 +64,38 @@ class PluginSettings
 
     }
 
-    public function myAdminErrorNotice($message = null) {
-        $class = "error";
-        if (!isset($message)) {
-            $message = "Error in saving";
-        }
-        echo"<div class=\"$class\"> <p>$message</p></div>";
+    /**
+     * Provides default values for the Display Options.
+     *
+     * @return array
+     */
+    public function defaultApiKeyOptions()
+    {
+
+        $defaults = array(
+            "region" => "us",
+            "apiKey" => "",
+            "valid_apiKey" => false,
+        );
+
+        return $defaults;
+    }
+
+    public function defaultGuildOptions()
+    {
+
+        $defaults = array(
+            "realm" => "",
+            "guild" => "",
+        );
+
+        return $defaults;
     }
 
     /**
      * Renders a simple page to display for the theme menu defined above.
      */
-    public function renderSettingsPageContent($active_tab = '')
+    public function renderSettingsPageContent($active_tab = 'apikey_options')
     { ?>
         <div class="wrap">
             <h2><?php _e( 'World of Warcraft Community Setup', 'wowcommunity_plugin' ) ?></h2>
@@ -111,13 +103,41 @@ class PluginSettings
 
             <?php if( isset( $_GET[ 'tab' ] ) ) {
                 $active_tab = $_GET[ 'tab'];
-            } else if( $active_tab == 'apikey_options' ) {
+            } else {
                 $active_tab = 'apikey_options';
             } // end if/else ?>
 
             <h2 class="nav-tab-wrapper">
-                <a href="?page=wowcommunity_options&apikey_options" class="nav-tab <?php echo $active_tab == 'apikey_options' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Battle.net API Key', 'wowcommunity_plugin' ); ?></a>
+                <a href="?page=wowcommunity_options&tab=apikey_options" class="nav-tab <?php echo $active_tab == 'apikey_options' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Battle.net API Key', 'wowcommunity_plugin' ); ?></a>
+                <?php
+                $options = get_option( 'wowcommunity_options' );
+                if(  $options['apikey_verified'] === true ) { ?>
+
+                    <a href="?page=wowcommunity_options&tab=guild_options" class="nav-tab <?php echo $active_tab == 'guild_options' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Guild', 'wowcommunity_plugin' ); ?></a>
+
+                <?php } ?>
             </h2>
+
+            <form method="post" action="options.php">
+                <?php
+
+                if( $active_tab == 'apikey_options' ) {
+
+                    settings_fields( 'wowcommunity_apikey_options');
+                    do_settings_sections( 'wowcommunity_apikey_options' );
+
+                } else if( $active_tab == 'guild_options' ) {
+
+                    settings_fields( 'wowcommunity_guild_options');
+                    do_settings_sections( 'wowcommunity_guild_options' );
+
+                }
+
+                submit_button();
+
+                ?>
+
+            </form>
 
             <?php
             $options = get_option('wowcommunity_options');
@@ -223,6 +243,38 @@ class PluginSettings
         <?php
     }
 
+    public function initializeApiKeyOptions () {
+
+        if( false == get_option( 'wowcommunity_apikey_options' ) ) {
+            $default_array = $this->defaultApiKeyOptions();
+            add_option( 'wowcommunity_apikey_options', $default_array );
+        }
+
+        add_settings_section(
+            'apikey_settings_section',			            // ID used to identify this section and with which to register options
+            __( 'Battle.net API Key', 'wowcommunity-plugin' ),		        // Title to be displayed on the administration page
+            array( $this, 'apikey_options_callback'),	    // Callback used to render the description of the section
+            'wowcommunity_apikey_options'		                // Page on which to add this section of options
+        );
+
+        add_settings_field(
+            'option_apikey',						        // ID used to identify the field throughout the theme
+            __( 'Battle.net API Key', 'wowcommunity-plugin' ),					// The label to the left of the option interface element
+            array( $this, 'validate_apikey_callback'),	// The name of the function responsible for rendering the option interface
+            'wowcommunity_apikey_options',	            // The page on which this option will be displayed
+            'apikey_settings_section',			        // The name of the section to which this field belongs
+            array(								        // The array of arguments to pass to the callback. In this case, just a description.
+                __( 'Enter your Battle.net API Key.', 'wowcommunity-plugin' ),
+            )
+        );
+
+        register_setting(
+            'wowcommunity_apikey_options',
+            'wowcommunity_apikey_options',
+            array( $this, 'sanitize_apikey_options')
+        );
+    }
+
     /**
      * This function provides a simple description for the General Options page.
      *
@@ -230,11 +282,138 @@ class PluginSettings
      * in the add_settings_section function.
      */
     public function apikey_options_callback() {
-        $options = get_option('apikey');
+        $options = get_option('wowcommunity_apikey_options');
         var_dump($options);
         echo '<p>' . __( 'Select which areas of content you wish to display.', 'wowcommunity_options' ) . '</p>';
     } // end general_options_callback
 
+    public function validate_apikey_callback () {
 
+        $options_apikey = get_option('wowcommunity_apikey_options');
+
+        /*
+         * Do we have a valid API key?
+         */
+        if (true == $options_apikey['valid_apiKey']) {
+            require (plugin_dir_path(__FILE__).'../../vendor/autoload.php');
+            $factory = new ClientFactory($options_apikey['apiKey']);
+            $client = $factory->warcraft(new \Pwnraid\Bnet\Region($options['region']));
+            try {
+                /**
+                 * Only way to test the API key is to make call to Battle.net site with the key. It knows
+                 */
+                $realmNames = $client->realms()->all();
+
+                //$character = $client->characters()->on('Arathor')->find('loganfive');
+                //$race = ClassEntity::fromId(1);
+                //$character = $client->characters()->find('loganfive');
+                //print_r($character);
+                //echo "I am a ".$character['race']['name']." ". $character['class']['name'];
+
+                $option_valid_apikey = true;
+            } catch (\Pwnraid\Bnet\Exceptions\BattleNetException $exception) {
+                $this->myAdminErrorNotice('Invalid API Key. Please enter a valid API Key to continue');
+                $option_valid_apikey = false;
+            }
+        }
+
+    }
+
+    /**
+     * Sanitization callback for the social options. Since each of the social options are text inputs,
+     * this function loops through the incoming option and strips all tags and slashes from the value
+     * before serializing it.
+     *
+     * @params	$input	The unsanitized collection of options.
+     *
+     * @returns			The collection of sanitized values.
+     */
+    public function sanitize_apikey_options( $input ) {
+        // Define the array for the updated options
+        $output = array();
+        // Loop through each of the options sanitizing the data
+        foreach( $input as $key => $val ) {
+            if( isset ( $input[$key] ) ) {
+                $output[$key] = esc_url_raw( strip_tags( stripslashes( $input[$key] ) ) );
+            } // end if
+        } // end foreach
+        // Return the new collection
+        return apply_filters( 'sanitize_apikey_options', $output, $input );
+    } // end sanitize_apikey_options
+
+    public function initializeGuildOptions () {
+
+        if( false == get_option( 'wowcommunity_guild_options' ) ) {
+            $default_array = $this->defaultGuildOptions();
+            add_option( 'wowcommunity_guild_options', $default_array );
+        }
+
+        add_settings_section(
+            'guild_settings_section',			            // ID used to identify this section and with which to register options
+            __( 'WoW Guild', 'wowcommunity-plugin' ),		        // Title to be displayed on the administration page
+            array( $this, 'guild_options_callback'),	    // Callback used to render the description of the section
+            'wowcommunity_options'		                // Page on which to add this section of options
+        );
+
+        add_settings_field(
+            'guild_region',						        // ID used to identify the field throughout the theme
+            __( 'Guild Region', 'wowcommunity-plugin' ),					// The label to the left of the option interface element
+            array( $this, 'guild_region_callback'),	// The name of the function responsible for rendering the option interface
+            'wowcommunity_options',	            // The page on which this option will be displayed
+            'guild_settings_section',			        // The name of the section to which this field belongs
+            array(								        // The array of arguments to pass to the callback. In this case, just a description.
+                __( '(other regions will be added in the future)', 'wowcommunity-plugin' ),
+            )
+        );
+
+        add_settings_field(
+            'guild_realm',						        // ID used to identify the field throughout the theme
+            __( 'Guild Realm', 'wowcommunity-plugin' ),					// The label to the left of the option interface element
+            array( $this, 'guild_realm_callback'),	// The name of the function responsible for rendering the option interface
+            'wowcommunity_options',	            // The page on which this option will be displayed
+            'guild_settings_section',			        // The name of the section to which this field belongs
+            array(								        // The array of arguments to pass to the callback. In this case, just a description.
+                __( 'Select your realm', 'wowcommunity-plugin' ),
+            )
+        );
+
+        add_settings_field(
+            'guild_name',						        // ID used to identify the field throughout the theme
+            __( 'Guild Name', 'wowcommunity-plugin' ),					// The label to the left of the option interface element
+            array( $this, 'guild_name_callback'),	// The name of the function responsible for rendering the option interface
+            'wowcommunity_guild_options',	            // The page on which this option will be displayed
+            'guild_settings_section',			        // The name of the section to which this field belongs
+            array(								        // The array of arguments to pass to the callback. In this case, just a description.
+                __( 'Choose your guild name', 'wowcommunity-plugin' ),
+            )
+        );
+
+        register_setting(
+            'wowcommunity_guild_options',
+            'wowcommunity_guild_options',
+            array( $this, 'sanitize_guild_options')
+        );
+    }
+
+    public function sanitize_guild_options( $input ) {
+        // Define the array for the updated options
+        $output = array();
+        // Loop through each of the options sanitizing the data
+        foreach( $input as $key => $val ) {
+            if( isset ( $input[$key] ) ) {
+                $output[$key] = esc_url_raw( strip_tags( stripslashes( $input[$key] ) ) );
+            } // end if
+        } // end foreach
+        // Return the new collection
+        return apply_filters( 'sanitize_guild_options', $output, $input );
+    } // end sanitize_guild_options
+
+    public function myAdminErrorNotice($message = null) {
+        $class = "error";
+        if (!isset($message)) {
+            $message = "Error in saving";
+        }
+        echo"<div class=\"$class\"> <p>$message</p></div>";
+    }
 
 }
