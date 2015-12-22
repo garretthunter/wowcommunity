@@ -13,6 +13,6 @@ class Activator
 {
     public static function activate ()
     {
-        register_setting('wc_settings','region'); add_option('region','us');
+
     }
 }

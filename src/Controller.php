@@ -12,6 +12,7 @@ use WowCommunity\Plugin\Loader;
 use WowCommunity\Plugin\i18n;
 use WowCommunity\Plugin\PluginAdmin;
 use WowCommunity\Plugin\PluginPublic;
+use WowCommunity\Plugin\PluginSettings;
 
 /**
  * Provides the WordPress integration
@@ -76,15 +77,24 @@ class Controller
 	private function defineAdminHooks() {
 
 		$plugin_admin = new PluginAdmin( $this->getPluginName(), $this->getVersion() );
+		$plugin_settings = new PluginSettings( $this->getPluginName(), $this->getVersion() );
 
-		$this->loader->addAction( 'admin_init', $plugin_admin, 'registerSettings' );
-		$this->loader->addAction( 'admin_menu', $plugin_admin, 'adminMenu' );
-		$this->loader->addAction( 'widgets_init', $plugin_admin, 'widgetsInit' );
-
-//		add_action( 'widgets_init', array( &$this, 'widgets_init' ) );
-
+		/**
+		 * Options menu
+		 */
 		$this->loader->addAction( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->addAction( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+
+		/**
+		 * Options Settings
+		 */
+		$this->loader->addAction( 'admin_menu', $plugin_settings, 'setupPluginOptionsMenu' );
+		$this->loader->addAction( 'admin_init', $plugin_settings, 'initializeOptions' );
+
+		/**
+		 * Widgets
+		 */
+		$this->loader->addAction( 'widgets_init', $plugin_admin, 'widgetsInit' );
 	}
 
 	private function definePublicHooks() {
