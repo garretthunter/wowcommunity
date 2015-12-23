@@ -108,12 +108,12 @@ class PluginSettings
             } // end if/else ?>
 
             <h2 class="nav-tab-wrapper">
-                <a href="?page=wowcommunity_options&tab=apikey_options" class="nav-tab <?php echo $active_tab == 'apikey_options' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Validate API Key', 'wowcommunity_plugin' ); ?></a>
+                <a href="?page=wowcommunity_options&tab=apikey_options" class="nav-tab <?php echo $active_tab == 'apikey_options' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Battle.Net API Key', 'wowcommunity_plugin' ); ?></a>
                 <?php
-                $options = get_option( 'wowcommunity_options' );
-                if( $options['valid_apikey'] === false ) { ?>
+                $options = get_option( 'wowcommunity_apikey_options' );
+                if( $options['valid_apikey'] === true ) { ?>
 
-                    <a href="?page=wowcommunity_options&tab=guild_options" class="nav-tab <?php echo $active_tab == 'guild_options' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Guild', 'wowcommunity_plugin' ); ?></a>
+                    <a href="?page=wowcommunity_options&tab=guild_options" class="nav-tab <?php echo $active_tab == 'guild_options' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Guild Settings', 'wowcommunity_plugin' ); ?></a>
 
                 <?php } ?>
             </h2>
@@ -133,7 +133,15 @@ class PluginSettings
 
                 }
 
-                submit_button();
+                if( $active_tab == 'apikey_options' ) {
+                    if( $options['valid_apikey'] == false ) {
+                        submit_button( "Validate" );
+                    } else {
+                        submit_button( "Change" );
+                    }
+                } else {
+                    submit_button();
+                }
 
                 ?>
 
@@ -159,12 +167,12 @@ class PluginSettings
 
         add_settings_field(
             'option_apikey',						        // ID used to identify the field throughout the theme
-            __( 'Battle.net API Key', 'wowcommunity-plugin' ),					// The label to the left of the option interface element
+            __( 'API Key', 'wowcommunity-plugin' ),					// The label to the left of the option interface element
             array( $this, 'apikey_options_callback'),	// The name of the function responsible for rendering the option interface
             'wowcommunity_apikey_options',	            // The page on which this option will be displayed
             'validate_apikey_section',			        // The name of the section to which this field belongs
             array(								        // The array of arguments to pass to the callback. In this case, just a description.
-                __( 'Enter your Battle.net API Key.', 'wowcommunity-plugin' ),
+                __( 'Find yours at dev.Battle.net', 'wowcommunity-plugin' ),
             )
         );
 
@@ -175,7 +183,7 @@ class PluginSettings
             'wowcommunity_apikey_options',	            // The page on which this option will be displayed
             'validate_apikey_section',			        // The name of the section to which this field belongs
             array(								        // The array of arguments to pass to the callback. In this case, just a description.
-                __( '(Future regions coming...)', 'wowcommunity-plugin' ),
+                __( '(Future regions coming soon...)', 'wowcommunity-plugin' ),
             )
         );
 
@@ -198,29 +206,28 @@ class PluginSettings
      * It's called from the 'wppb-demo_initialize_theme_options' function by being passed as a parameter
      * in the add_settings_section function.
      */
-    public function apikey_options_callback() {
+    public function apikey_options_callback( $messages ) {
         $options = get_option('wowcommunity_apikey_options');
-        var_dump($options);
+        var_dump($options); echo "<br />"; // gehDEBUG
 
-        if( $options['valid_apikey'] == true ) {
-            ?>
+        if( $options['valid_apikey'] == true ) { ?>
             <input type="text" name="wowcommunity_apikey_options[apikey]" value="<?php echo esc_attr( $options['apikey'] );?>" maxlength="32" size="40" readonly /></td>
-            <?php
-        } else {
-            ?>
-            <input type="text" name="wowcommunity_apikey_options[apikey]" value="<?php echo esc_attr($options['apikey']); ?>" maxlength="32" size="40"/> <input type="submit" name="submit" value="Validate" class="button button-primary" />
-            <?php
+            <input type="hidden" name="wowcommunity_apikey_options[valid_apikey]" value="0" />
+        <?php } else { ?>
+            <input type="text" name="wowcommunity_apikey_options[apikey]" value="<?php echo esc_attr($options['apikey']); ?>" maxlength="32" size="40"/>
+            <?php echo $messages[0];
         }
-    } // end general_options_callback
+    } // end apikey_options_callback
 
-    public function region_options_callback () {
+    public function region_options_callback ( $messages ) {
         $options = get_option('wowcommunity_apikey_options');
-        var_dump($options);
-        ?>
-        <input type="text" name="" value="<?php echo esc_attr( strtoupper($options['region']) ); ?>" readonly /> (other regions will be added in the future)
-        <input type="hidden" name="wowcommunity_apikey_options[region]" value="<?php echo esc_attr( $options['region'] ); ?>"   />
-        <?php
-    }
+
+        if( $options['valid_apikey'] == true ) { ?>
+            <input type="text" name="wowcommunity_apikey_options[region]" value="<?php echo esc_attr( strtoupper($options['region']) ); ?>" readonly />
+        <?php } else { ?>
+            <input type="text" name="wowcommunity_apikey_options[region]" value="<?php echo esc_attr( strtoupper($options['region']) ); ?>" readonly /> <?php echo $messages[0];
+        }
+    } // end region_options_callback
 
     public function validate_apikey_options ( $input ) {
 
@@ -236,7 +243,7 @@ class PluginSettings
              */
             require (plugin_dir_path(__FILE__).'../../vendor/autoload.php');
             $factory = new ClientFactory( $options['apikey'] );
-            $client = $factory->warcraft(new \Pwnraid\Bnet\Region($options['region']));
+            $client = $factory->warcraft(new \Pwnraid\Bnet\Region( strtolower( $options['region'] ) ) );
             try {
                 $realmNames = $client->realms()->all();
 
