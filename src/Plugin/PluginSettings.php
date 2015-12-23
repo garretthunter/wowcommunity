@@ -111,7 +111,7 @@ class PluginSettings
                 <a href="?page=wowcommunity_options&tab=apikey_options" class="nav-tab <?php echo $active_tab == 'apikey_options' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Validate API Key', 'wowcommunity_plugin' ); ?></a>
                 <?php
                 $options = get_option( 'wowcommunity_options' );
-                if(  $options['apikey_verified'] === true ) { ?>
+                if( $options['valid_apikey'] === false ) { ?>
 
                     <a href="?page=wowcommunity_options&tab=guild_options" class="nav-tab <?php echo $active_tab == 'guild_options' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Guild', 'wowcommunity_plugin' ); ?></a>
 
@@ -139,77 +139,6 @@ class PluginSettings
 
             </form>
 
-            <?php
-            if (false == $option_valid_apikey){
-                /**
-                 * No key has been stored yet, do not issue an error
-                 */
-                ?>
-                <p>Please enter a valid Battle.net API Key to add your Realm and Guild. Get your free Battle.net API key at <a href="https://dev.battle.net" target="_blank">dev.Battle.net</a>.</p>
-                <form method="post" name="options" action="options.php">
-                    <?php
-                    settings_fields( 'wowcommunity_options' );
-                    //                do_settings_sections('wowcommunity_options');
-                    ?>
-                    <table class="form-table">
-                        <tr valign="top">
-                            <th scope="row">Battle.net API Key</th>
-                            <td><input type="text" name="wowcommunity_options[apikey]" value="<?php echo esc_attr($options['apikey']); ?>" maxlength="32" size="40"/> <input type="submit" name="submit" value="Validate" class="button button-primary" />
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th scope="row">Guild Region</th>
-                            <td><input type="text" name="" value="<?php echo esc_attr( strtoupper($options['region']) ); ?>" readonly /> (other regions will be added in the future)
-                                <input type="hidden" name="wowcommunity_options[region]" value="<?php echo esc_attr( $options['region'] ); ?>" />
-                            </td>
-                        </tr>
-                    </table>
-                </form>
-                <?php
-            } else {
-                /**
-                 * If it's a valid key, proceed.
-                 */
-                if (true == $option_valid_apikey) { ?>
-
-                    <form method="post" name="options" action="options.php">
-                        <?php
-                        settings_fields( 'wowcommunity_options' );
-                        //                do_settings_sections('wowcommunity_options');
-                        ?>
-                        <table class="form-table">
-                            <tr valign="top">
-                                <th scope="row">Battle.net API Key</th>
-                                <td><input type="text" name="wowcommunity_options[apikey]" value="<?php echo esc_attr( $options['apikey'] );?>" maxlength="32" size="40" readonly /></td>
-                            </tr>
-                            <tr valign="top">
-                                <th scope="row">Guild Region</th>
-                                <td><input type="text" name="" value="<?php echo esc_attr( strtoupper($options['region']) ); ?>" readonly /> (other regions will be added in the future)
-                                    <input type="hidden" name="wowcommunity_options[region]" value="<?php echo esc_attr( $options['region'] ); ?>" />
-                                </td>
-                            </tr>
-                            <tr valign="top">
-                                <th scope="row">Guild Realm</th>
-                                <td><select name="wowcommunity_options[realm]">
-                                        <?php
-                                        $myRealm = $options['realm'];
-                                        foreach ($realmNames as $realm) { ?>
-                                            <option value="<?php echo $realm['name']; ?>"<?php if (!strcasecmp($myRealm, $realm['name'])) :?> SELECTED <?php endif ?>><?php echo esc_attr($realm['name']); ?></option>
-                                        <?php } ?>
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr valign="top">
-                                <th scope="row">Guild Name</th>
-                                <td><input type="text" name="wowcommunity_options[guild]" size="40" value="<?php echo esc_attr( $options['guild'] ); ?>" /></td>
-                            </tr>
-                        </table>
-                        <?php submit_button(); ?>
-                    </form>
-                    <?php
-                }
-            }
-            ?>
         </div><!-- /.wrap -->
         <?php
     }
@@ -222,9 +151,9 @@ class PluginSettings
         }
 
         add_settings_section(
-            'apikey_settings_section',			                // ID used to identify this section and with which to register options
+            'validate_apikey_section',			                // ID used to identify this section and with which to register options
             __( '', 'wowcommunity-plugin' ),	// Title to be displayed on the administration page
-            array( $this, 'apikey_options_callback'),	        // Callback used to render the description of the section
+            array( $this, 'validate_apikey_section_callback'),	        // Callback used to render the description of the section
             'wowcommunity_apikey_options'		                // Page on which to add this section of options
         );
 
@@ -233,9 +162,20 @@ class PluginSettings
             __( 'Battle.net API Key', 'wowcommunity-plugin' ),					// The label to the left of the option interface element
             array( $this, 'apikey_options_callback'),	// The name of the function responsible for rendering the option interface
             'wowcommunity_apikey_options',	            // The page on which this option will be displayed
-            'apikey_settings_section',			        // The name of the section to which this field belongs
+            'validate_apikey_section',			        // The name of the section to which this field belongs
             array(								        // The array of arguments to pass to the callback. In this case, just a description.
                 __( 'Enter your Battle.net API Key.', 'wowcommunity-plugin' ),
+            )
+        );
+
+        add_settings_field(
+            'option_region',						        // ID used to identify the field throughout the theme
+            __( 'Region', 'wowcommunity-plugin' ),					// The label to the left of the option interface element
+            array( $this, 'region_options_callback'),	// The name of the function responsible for rendering the option interface
+            'wowcommunity_apikey_options',	            // The page on which this option will be displayed
+            'validate_apikey_section',			        // The name of the section to which this field belongs
+            array(								        // The array of arguments to pass to the callback. In this case, just a description.
+                __( '(Future regions coming...)', 'wowcommunity-plugin' ),
             )
         );
 
@@ -246,6 +186,12 @@ class PluginSettings
         );
     }
 
+    public function validate_apikey_section_callback () {
+
+        echo '<p>' . __( "Please enter a valid Battle.net API Key to add your Realm and Guild. Get your free Battle.net API key at <a href=\"https://dev.battle.net\" target=\"_blank\">dev.Battle.net</a>.") . '</p>';
+
+    }
+
     /**
      * This function provides a simple description for the General Options page.
      *
@@ -254,28 +200,31 @@ class PluginSettings
      */
     public function apikey_options_callback() {
         $options = get_option('wowcommunity_apikey_options');
+        var_dump($options);
 
-        echo '<p>' . __( "Please enter a valid Battle.net API Key to add your Realm and Guild. Get your free Battle.net API key at <a href=\"https://dev.battle.net\" target=\"_blank\">dev.Battle.net</a>.") . '</p>';
-        ?>
-        <table class="form-table">
-            <tr valign="top">
-                <th scope="row">Battle.net API Key</th>
-                <td><input type="text" name="wowcommunity_options[apikey]" value="<?php echo esc_attr($options['apikey']); ?>" maxlength="32" size="40"/> <input type="submit" name="submit" value="Validate" class="button button-primary" />
-                </td>
-            </tr>
-            <tr valign="top">
-                <th scope="row">Guild Region</th>
-                <td><input type="text" name="" value="<?php echo esc_attr( strtoupper($options['region']) ); ?>" readonly /> (other regions will be added in the future)
-                    <input type="hidden" name="wowcommunity_options[region]" value="<?php echo esc_attr( $options['region'] ); ?>" />
-                </td>
-            </tr>
-        </table>
-    <?php
+        if( $options['valid_apikey'] == true ) {
+            ?>
+            <input type="text" name="wowcommunity_apikey_options[apikey]" value="<?php echo esc_attr( $options['apikey'] );?>" maxlength="32" size="40" readonly /></td>
+            <?php
+        } else {
+            ?>
+            <input type="text" name="wowcommunity_apikey_options[apikey]" value="<?php echo esc_attr($options['apikey']); ?>" maxlength="32" size="40"/> <input type="submit" name="submit" value="Validate" class="button button-primary" />
+            <?php
+        }
     } // end general_options_callback
+
+    public function region_options_callback () {
+        $options = get_option('wowcommunity_apikey_options');
+        var_dump($options);
+        ?>
+        <input type="text" name="" value="<?php echo esc_attr( strtoupper($options['region']) ); ?>" readonly /> (other regions will be added in the future)
+        <input type="hidden" name="wowcommunity_apikey_options[region]" value="<?php echo esc_attr( $options['region'] ); ?>"   />
+        <?php
+    }
 
     public function validate_apikey_options ( $input ) {
 
-        $options = [];
+        $options = array();
 
         if ( isset( $input ) ){
             foreach ( $input as $key => $value) {
@@ -299,7 +248,12 @@ class PluginSettings
 
                 $options['valid_apikey'] = true;
             } catch (\Pwnraid\Bnet\Exceptions\BattleNetException $exception) {
-                $this->myAdminErrorNotice('Invalid API Key. Please enter a valid API Key to continue');
+                add_settings_error(
+                    'wowcommunity_apikey_options',
+                    'apikey',
+                    'Invalid API Key. Please enter a valid API Key to continue',
+                    'error' );
+
                 $options['valid_apikey'] = false;
             }
         }
@@ -318,7 +272,8 @@ class PluginSettings
      */
     public function sanitize_apikey_options( $input ) {
 
-        var_dump( $input );
+//        var_dump( $input );
+
         // Define the array for the updated options
         $output = array();
         // Loop through each of the options sanitizing the data
@@ -383,6 +338,31 @@ class PluginSettings
             'wowcommunity_guild_options',
             array( $this, 'sanitize_guild_options')
         );
+    }
+
+    public function guild_options_callback () {
+        $options = get_option('wowcommunity_guild_options');
+        var_dump( $options );
+    ?>
+        <table class="form-table">
+            <tr valign="top">
+                <th scope="row">Guild Realm</th>
+                <td><select name="wowcommunity_options[realm]">
+                        <?php
+                        $myRealm = $options['realm'];
+                        foreach ($realmNames as $realm) { ?>
+                            <option value="<?php echo $realm['name']; ?>"<?php if (!strcasecmp($myRealm, $realm['name'])) :?> SELECTED <?php endif ?>><?php echo esc_attr($realm['name']); ?></option>
+                        <?php } ?>
+                    </select>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">Guild Name</th>
+                <td><input type="text" name="wowcommunity_options[guild]" size="40" value="<?php echo esc_attr( $options['guild'] ); ?>" /></td>
+            </tr>
+        </table>
+
+    <?php
     }
 
     public function sanitize_guild_options( $input ) {
