@@ -95,7 +95,7 @@ class PluginSettings
     /**
      * Renders a simple page to display for the theme menu defined above.
      */
-    public function renderSettingsPageContent($active_tab = 'apikey_options')
+    public function renderSettingsPageContent($active_tab = '')
     { ?>
         <div class="wrap">
             <h2><?php _e( 'World of Warcraft Community Setup', 'wowcommunity_plugin' ) ?></h2>
@@ -211,7 +211,7 @@ class PluginSettings
         var_dump($options); echo "<br />"; // gehDEBUG
 
         if( $options['valid_apikey'] == true ) { ?>
-            <input type="text" name="wowcommunity_apikey_options[apikey]" value="<?php echo esc_attr( $options['apikey'] );?>" maxlength="32" size="40" readonly /></td>
+            <input type="text" name="wowcommunity_apikey_options[apikey]" value="<?php echo esc_attr( $options['apikey'] );?>" maxlength="32" size="40" readonly />
             <input type="hidden" name="wowcommunity_apikey_options[valid_apikey]" value="0" />
         <?php } else { ?>
             <input type="text" name="wowcommunity_apikey_options[apikey]" value="<?php echo esc_attr($options['apikey']); ?>" maxlength="32" size="40"/>
