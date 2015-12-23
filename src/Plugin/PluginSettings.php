@@ -74,8 +74,8 @@ class PluginSettings
 
         $defaults = array(
             "region" => "us",
-            "apiKey" => "",
-            "valid_apiKey" => false,
+            "apikey" => "",
+            "valid_apikey" => false,
         );
 
         return $defaults;
@@ -108,7 +108,7 @@ class PluginSettings
             } // end if/else ?>
 
             <h2 class="nav-tab-wrapper">
-                <a href="?page=wowcommunity_options&tab=apikey_options" class="nav-tab <?php echo $active_tab == 'apikey_options' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Battle.net API Key', 'wowcommunity_plugin' ); ?></a>
+                <a href="?page=wowcommunity_options&tab=apikey_options" class="nav-tab <?php echo $active_tab == 'apikey_options' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Validate API Key', 'wowcommunity_plugin' ); ?></a>
                 <?php
                 $options = get_option( 'wowcommunity_options' );
                 if(  $options['apikey_verified'] === true ) { ?>
@@ -140,35 +140,6 @@ class PluginSettings
             </form>
 
             <?php
-            $options = get_option('wowcommunity_options');
-            $option_valid_apikey = false;
-
-            /*
-             * Do we have a valid API key?
-             */
-            if (true == $options['apikey']) {
-                require (plugin_dir_path(__FILE__).'../../vendor/autoload.php');
-                $factory = new ClientFactory($options['apikey']);
-                $client = $factory->warcraft(new \Pwnraid\Bnet\Region($options['region']));
-                try {
-                    /**
-                     * Only way to test the API key is to make call to Battle.net site with the key. It knows
-                     */
-                    $realmNames = $client->realms()->all();
-
-                    //$character = $client->characters()->on('Arathor')->find('loganfive');
-                    //$race = ClassEntity::fromId(1);
-                    //$character = $client->characters()->find('loganfive');
-                    //print_r($character);
-                    //echo "I am a ".$character['race']['name']." ". $character['class']['name'];
-
-                    $option_valid_apikey = true;
-                } catch (\Pwnraid\Bnet\Exceptions\BattleNetException $exception) {
-                    $this->myAdminErrorNotice('Invalid API Key. Please enter a valid API Key to continue');
-                    $option_valid_apikey = false;
-                }
-            }
-
             if (false == $option_valid_apikey){
                 /**
                  * No key has been stored yet, do not issue an error
@@ -251,16 +222,16 @@ class PluginSettings
         }
 
         add_settings_section(
-            'apikey_settings_section',			            // ID used to identify this section and with which to register options
-            __( 'Battle.net API Key', 'wowcommunity-plugin' ),		        // Title to be displayed on the administration page
-            array( $this, 'apikey_options_callback'),	    // Callback used to render the description of the section
+            'apikey_settings_section',			                // ID used to identify this section and with which to register options
+            __( '', 'wowcommunity-plugin' ),	// Title to be displayed on the administration page
+            array( $this, 'apikey_options_callback'),	        // Callback used to render the description of the section
             'wowcommunity_apikey_options'		                // Page on which to add this section of options
         );
 
         add_settings_field(
             'option_apikey',						        // ID used to identify the field throughout the theme
             __( 'Battle.net API Key', 'wowcommunity-plugin' ),					// The label to the left of the option interface element
-            array( $this, 'validate_apikey_callback'),	// The name of the function responsible for rendering the option interface
+            array( $this, 'apikey_options_callback'),	// The name of the function responsible for rendering the option interface
             'wowcommunity_apikey_options',	            // The page on which this option will be displayed
             'apikey_settings_section',			        // The name of the section to which this field belongs
             array(								        // The array of arguments to pass to the callback. In this case, just a description.
@@ -271,7 +242,7 @@ class PluginSettings
         register_setting(
             'wowcommunity_apikey_options',
             'wowcommunity_apikey_options',
-            array( $this, 'sanitize_apikey_options')
+            array( $this, 'validate_apikey_options')
         );
     }
 
@@ -283,25 +254,41 @@ class PluginSettings
      */
     public function apikey_options_callback() {
         $options = get_option('wowcommunity_apikey_options');
-        var_dump($options);
-        echo '<p>' . __( 'Select which areas of content you wish to display.', 'wowcommunity_options' ) . '</p>';
+
+        echo '<p>' . __( "Please enter a valid Battle.net API Key to add your Realm and Guild. Get your free Battle.net API key at <a href=\"https://dev.battle.net\" target=\"_blank\">dev.Battle.net</a>.") . '</p>';
+        ?>
+        <table class="form-table">
+            <tr valign="top">
+                <th scope="row">Battle.net API Key</th>
+                <td><input type="text" name="wowcommunity_options[apikey]" value="<?php echo esc_attr($options['apikey']); ?>" maxlength="32" size="40"/> <input type="submit" name="submit" value="Validate" class="button button-primary" />
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">Guild Region</th>
+                <td><input type="text" name="" value="<?php echo esc_attr( strtoupper($options['region']) ); ?>" readonly /> (other regions will be added in the future)
+                    <input type="hidden" name="wowcommunity_options[region]" value="<?php echo esc_attr( $options['region'] ); ?>" />
+                </td>
+            </tr>
+        </table>
+    <?php
     } // end general_options_callback
 
-    public function validate_apikey_callback () {
+    public function validate_apikey_options ( $input ) {
 
-        $options_apikey = get_option('wowcommunity_apikey_options');
+        $options = [];
 
-        /*
-         * Do we have a valid API key?
-         */
-        if (true == $options_apikey['valid_apiKey']) {
+        if ( isset( $input ) ){
+            foreach ( $input as $key => $value) {
+                $options[$key] = $value;
+            }
+
+            /**
+             * Make a test call to validate API
+             */
             require (plugin_dir_path(__FILE__).'../../vendor/autoload.php');
-            $factory = new ClientFactory($options_apikey['apiKey']);
+            $factory = new ClientFactory( $options['apikey'] );
             $client = $factory->warcraft(new \Pwnraid\Bnet\Region($options['region']));
             try {
-                /**
-                 * Only way to test the API key is to make call to Battle.net site with the key. It knows
-                 */
                 $realmNames = $client->realms()->all();
 
                 //$character = $client->characters()->on('Arathor')->find('loganfive');
@@ -310,13 +297,14 @@ class PluginSettings
                 //print_r($character);
                 //echo "I am a ".$character['race']['name']." ". $character['class']['name'];
 
-                $option_valid_apikey = true;
+                $options['valid_apikey'] = true;
             } catch (\Pwnraid\Bnet\Exceptions\BattleNetException $exception) {
                 $this->myAdminErrorNotice('Invalid API Key. Please enter a valid API Key to continue');
-                $option_valid_apikey = false;
+                $options['valid_apikey'] = false;
             }
         }
 
+        return apply_filters( 'validate_apikey_options', $options, $input );
     }
 
     /**
@@ -329,6 +317,8 @@ class PluginSettings
      * @returns			The collection of sanitized values.
      */
     public function sanitize_apikey_options( $input ) {
+
+        var_dump( $input );
         // Define the array for the updated options
         $output = array();
         // Loop through each of the options sanitizing the data
