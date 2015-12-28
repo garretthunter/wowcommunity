@@ -333,6 +333,7 @@ class PluginSettings
             'wowcommunity_guild_options',
             array( $this, 'sanitize_guild_options')
         );
+
     }
 
     public function guild_settings_section_callback () {

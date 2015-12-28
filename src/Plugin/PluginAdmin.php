@@ -56,16 +56,6 @@ class PluginAdmin
         wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . '../../js/admin.js', array( 'jquery' ), $this->version, false );
     }
 
-    public function adminMenu() {
-
-        add_menu_page(
-            __( $this->plugin_name, 'wc' ),
-            'Wow Community',
-            'administrator',
-            'wc_admin',
-            array( $this, 'adminOptionsPage'));
-    }
-
     /**
      * Widget activation method.
      */

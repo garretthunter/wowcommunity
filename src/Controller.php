@@ -95,6 +95,7 @@ class Controller
 		/**
 		 * Widgets
 		 */
+
 		$this->loader->addAction( 'widgets_init', $plugin_admin, 'widgetsInit' );
 	}
 

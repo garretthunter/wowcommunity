@@ -57,10 +57,7 @@ class RealmStatus extends \WP_Widget {
 	        echo '<div class="status-icon '. $status . '"tooltip="' . ucfirst($status) . '"></div>';
 
         } catch (\Pwnraid\Bnet\Exceptions\BattleNetException $exception) {
-            $this->my_admin_error_notice('Invalid API Key. Please enter a valid API Key to continue');
-            $option_valid_apikey = false;
-
-	        echo "error";
+	        echo "Configure your API Key first.";
         }
 
         /**
