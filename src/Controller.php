@@ -13,6 +13,7 @@ use WowCommunity\Plugin\i18n;
 use WowCommunity\Plugin\PluginAdmin;
 use WowCommunity\Plugin\PluginPublic;
 use WowCommunity\Plugin\PluginSettings;
+use WowCommunity\Characters\UserCharacterSettings;
 
 /**
  * Provides the WordPress integration
@@ -78,6 +79,7 @@ class Controller
 
 		$plugin_admin = new PluginAdmin( $this->getPluginName(), $this->getVersion() );
 		$plugin_settings = new PluginSettings( $this->getPluginName(), $this->getVersion() );
+		$character_settings = new UserCharacterSettings( $this->getPluginName(), $this->getVersion() );
 
 		/**
 		 * Options menu
@@ -95,8 +97,13 @@ class Controller
 		/**
 		 * Widgets
 		 */
-
 		$this->loader->addAction( 'widgets_init', $plugin_admin, 'widgetsInit' );
+
+		/**
+		 * Character additions to user profile
+		 */
+		$this->loader->addAction( 'edit_user_profile', $character_settings, 'initializeUserCharacterOptions' );
+		$this->loader->addAction( 'show_user_profile', $character_settings, 'initializeUserCharacterOptions' );
 	}
 
 	private function definePublicHooks() {
